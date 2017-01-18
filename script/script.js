@@ -7,13 +7,13 @@ var GUI = {
 
 	displayHit	: function(id) {
 		var cell = document.getElementById(id);
-		cell.setAttribute("class", "button hit")
+		cell.className += " hit";
 		this.displayMessage("HIT");
 	},
 
 	displayMiss: function (id) {
 		var cell = document.getElementById(id);
-		cell.setAttribute("class", "button miss")
+		cell.className += " miss";
 		this.displayMessage("MISS");
 	},
 
@@ -33,7 +33,6 @@ var board = {
 		{locations: [], length: 0},
 		{locations: [], length: 0},
 		{locations: [], length: 0},
-
 	],
 
 	isSunk : function() {
@@ -46,37 +45,43 @@ var board = {
 	},
 
 
-	onFire : function(EventObj) {
+/**************************************/
+// why "this" keyword is uninvokable?
+// because "this" is bound to the calling obj when function is called, not when it's declared.
+	// in this case: "this" refers to "button" not "board"
+		// that's why "this.ships" is undefined because there is no "ships" in button
 
-		board.guesses++;
-		var guess = EventObj.target.id;
-		document.getElementById(guess).setAttribute("disabled", "1");
+/***** so, take it outside ****/
+	// onFire : function(EventObj) {
+	// 	console.log(this);
+	// 	board.guesses++;
+	// 	var guess = EventObj.target.id;
+	// 	// disable button after clicking
+	// 	document.getElementById(guess).setAttribute("disabled", "1");
 
-		for (var ship of board.ships) {
-			if (ship.locations.indexOf(guess) >= 0) {
+	// 	for (var ship of board.ships) {
 
-				GUI.displayHit(guess);
-				ship.length--;
+	// 		if (ship.locations.indexOf(guess) >= 0) {
 
-				if (!ship.length) {
-					board.shipNum--;
-					board.isSunk();
-				}
+	// 			GUI.displayHit(guess);
+	// 			ship.length--;
 
-				if (!board.shipNum) {
-					console.log(board.shipNum);
-					board.isOver();
-				}
+	// 			if (!ship.length) {
+	// 				board.isSunk();
+	// 				board.shipNum--;
+	// 			}
+	// 			if (!board.shipNum) 
+	// 				board.isOver();
 
-				return true;
-			}
+	// 			return true;
+	// 		}
 
-		}
+	// 	}
 		
-		GUI.displayMiss(guess);
-		return false;
+	// 	GUI.displayMiss(guess);
+	// 	return false;
 
-	},
+	// },
 
 
 	generateShipLocation : function() {
@@ -84,24 +89,23 @@ var board = {
  		for (var ship of this.ships) {
 			do {
 				locations = this.generateShip(ship);
-			} while (this.collision(locations));
+			} while (this.isOverlap(locations));
 
 			ship.locations = locations;
 
 		}
 		// console.log("Ships array: ");
 		// console.log(this.ships);
-
 	},
 
 
 	generateShip : function(ship) {
 
-		var direction = Math.floor(Math.random() * 2);
 		// length [2,4]
 		ship.length = Math.floor(Math.random() * 3) + 2;
-		var row, col;
-
+		var direction = Math.floor(Math.random() * 2);
+		
+		var row, col;		
 		// horizontal
 		if (direction === 1) {
 			var row = Math.floor(Math.random() * this.boardSize);
@@ -126,20 +130,48 @@ var board = {
 	},
 
 
-	collision: function(locations) {
+	isOverlap: function(locations) {
 		for (var ship of this.ships) {
-			for (var j = 0; j < locations.length; j++) {
-				if (ship.locations.indexOf(locations[j]) >= 0) {
+			for (var j = 0; j < locations.length; j++) 
+				if (ship.locations.indexOf(locations[j]) >= 0) 
 					return true;
-				}
-			}
 		}
 		return false;
 	},
 
 
-
 };
+
+
+
+function onFire(EventObj) {
+	board.guesses++;
+	var guess = EventObj.target.id;
+	// disable button after clicking
+	document.getElementById(guess).setAttribute("disabled", "1");
+
+	for (var ship of board.ships) {
+
+		if (ship.locations.indexOf(guess) >= 0) {
+
+			GUI.displayHit(guess);
+			ship.length--;
+
+			if (!ship.length) {
+				board.isSunk();
+				board.shipNum--;
+			}
+			if (!board.shipNum) 
+				board.isOver();
+
+			return true;
+		}
+	}
+	
+	GUI.displayMiss(guess);
+	return false;
+}
+
 
 
 window.onload = init;
@@ -149,11 +181,10 @@ function init () {
 	// handler
 	var buttons = document.getElementsByTagName("button");
 	for (var button of buttons)
-		button.onclick = board.onFire;
+		button.onclick = onFire;
 
 	board.generateShipLocation();
 
-	
 }
 
 

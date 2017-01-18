@@ -37,12 +37,14 @@ var board = {
 	],
 
 	isSunk : function() {
-		GUI.displayMessage("Ship was sunk");
+		GUI.displayMessage("\"Ship was sunk\"");
 	},
 
 	isOver : function() {
-		alert("Congratulation: You sink all ships with " + this.guesses);
+		if(confirm("Congratulation: You sink all ships with " + this.guesses + " guesses." + "\nClick <OK> to Replay"))
+      		window.location.reload();	
 	},
+
 
 	onFire : function(EventObj) {
 
@@ -87,8 +89,8 @@ var board = {
 			ship.locations = locations;
 
 		}
-		console.log("Ships array: ");
-		console.log(this.ships);
+		// console.log("Ships array: ");
+		// console.log(this.ships);
 
 	},
 

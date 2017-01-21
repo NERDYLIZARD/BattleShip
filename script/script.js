@@ -45,45 +45,6 @@ var board = {
 	},
 
 
-/**************************************/
-// why "this" keyword is uninvokable?
-// because "this" is bound to the calling obj when function is called, not when it's declared.
-	// in this case: "this" refers to "button" not "board"
-		// that's why "this.ships" is undefined because there is no "ships" in button
-
-/***** so, take it outside ****/
-	// onFire : function(EventObj) {
-	// 	console.log(this);
-	// 	board.guesses++;
-	// 	var guess = EventObj.target.id;
-	// 	// disable button after clicking
-	// 	document.getElementById(guess).setAttribute("disabled", "1");
-
-	// 	for (var ship of board.ships) {
-
-	// 		if (ship.locations.indexOf(guess) >= 0) {
-
-	// 			GUI.displayHit(guess);
-	// 			ship.length--;
-
-	// 			if (!ship.length) {
-	// 				board.isSunk();
-	// 				board.shipNum--;
-	// 			}
-	// 			if (!board.shipNum) 
-	// 				board.isOver();
-
-	// 			return true;
-	// 		}
-
-	// 	}
-		
-	// 	GUI.displayMiss(guess);
-	// 	return false;
-
-	// },
-
-
 	generateShipLocation : function() {
 		var locations;
  		for (var ship of this.ships) {
@@ -94,6 +55,7 @@ var board = {
 			ship.locations = locations;
 
 		}
+	// Cheat code:
 		// console.log("Ships array: ");
 		// console.log(this.ships);
 	},
@@ -132,9 +94,10 @@ var board = {
 
 	isOverlap: function(locations) {
 		for (var ship of this.ships) {
-			for (var j = 0; j < locations.length; j++) 
+			for (var j = 0; j < locations.length; j++) { 
 				if (ship.locations.indexOf(locations[j]) >= 0) 
 					return true;
+			}
 		}
 		return false;
 	},
@@ -164,34 +127,25 @@ function onFire(EventObj) {
 			if (!board.shipNum) 
 				board.isOver();
 
-			return true;
+			return;
 		}
 	}
 	
 	GUI.displayMiss(guess);
-	return false;
+
 }
 
 
 
-window.onload = init;
+window.onload = function init () {
 
-function init () {
-
+	board.generateShipLocation();
+	
 	// handler
 	var buttons = document.getElementsByTagName("button");
 	for (var button of buttons)
 		button.onclick = onFire;
 
-	board.generateShipLocation();
 
-}
-
-
-
-
-
-
-
-
+};
 
